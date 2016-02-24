@@ -21,7 +21,8 @@ import javax.swing.JFrame;
  */
 public class App extends JFrame implements Runnable, KeyListener{
     private int iCaidas; // Numero de caídas
-    private int iDireccion; // Direccion del jugador
+    private int iDirPrincipal; // Direccion del jugador
+    private int iDirBala; // Direccion de la bala
     private int iVidas; // Vidas del jugador
     private int iPuntos; // Puntos del jugador
     private static final int WIDTH = 800;    //Ancho del JFrame
@@ -52,9 +53,10 @@ public class App extends JFrame implements Runnable, KeyListener{
         
         // Valores iniciales de las variables
         iCaidas = 0;
-        iDireccion = 0;
+        iDirPrincipal = 0;
         iPuntos = 0;
         iVidas = 5;
+        iDirBala = 0;
         
         inicializaObjetos();
         
@@ -113,7 +115,7 @@ public class App extends JFrame implements Runnable, KeyListener{
         // Se posicionan los malos
         for(Malo malMalo : lklMalos){
             malMalo.setX(alAzar(0, getWidth() - malMalo.getAncho()));
-            malMalo.setY(alAzar(0 - malMalo.getAlto(), 5) * 50);
+            malMalo.setY(0 - alAzar(0, 5) * 100);
         }
     }
     
@@ -155,8 +157,13 @@ public class App extends JFrame implements Runnable, KeyListener{
     }
     
     public void checaColisionMalos(){
-        // Checa colision de la fruta
+        // Checa colision de los malos
         for(Malo malMalo : lklMalos){
+            // Revisa contacto con el borde inferior
+            if(malMalo.getY() + malMalo.getAlto() >= getHeight()) {
+                reposicionaMalo(malMalo);
+            }
+            
             // Checo la colision entre principal y malo
             if(basPrincipal.colisiona(malMalo)) {
                 iPuntos -= 1;
@@ -259,7 +266,7 @@ public class App extends JFrame implements Runnable, KeyListener{
     public void actualizaMalos(){
         // Actualiza malos
         for(Malo malMalo : lklMalos){
-            int iVelMalo = iVidas - 4 * -2;
+            int iVelMalo = (iVidas - 4) * 5;
             // Actualizo la posicion de los malos
             malMalo.setY(malMalo.getY() + iVelMalo);
         }
@@ -267,7 +274,7 @@ public class App extends JFrame implements Runnable, KeyListener{
     
     public void actualizaPrincipal(){
         // Actualizo posicion del principal        
-        switch(iDireccion){
+        switch(iDirPrincipal){
             case 0:
                 break;
             case 1:
@@ -316,9 +323,9 @@ public class App extends JFrame implements Runnable, KeyListener{
                     }
                 }
                                 
-                graDibujo.drawString("Puntos: " + iPuntos, 10, 20);
-                graDibujo.drawString("Vidas: " + (6 - iVidas), 10, 40);
-                graDibujo.drawString("Caidas: " + iCaidas, 10, 60);
+                graDibujo.drawString("Puntos: " + iPuntos, 10, 50);
+                graDibujo.drawString("Vidas: " + (6 - iVidas), 10, 70);
+                graDibujo.drawString("Caidas: " + iCaidas, 10, 90);
             } // sino se ha cargado se dibuja un mensaje 
             else {
                 //Da un mensaje mientras se carga el dibujo	
@@ -331,9 +338,9 @@ public class App extends JFrame implements Runnable, KeyListener{
     
     /**
      * App
-     *
+     * 
      * Contructor
-     *
+     * 
      */
     public App(){
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -358,7 +365,7 @@ public class App extends JFrame implements Runnable, KeyListener{
     public void run() {
         while (iVidas > 0) {
             actualiza();
-            //checaColision();
+            checaColision();
             repaint();
 
             try	{
@@ -391,12 +398,25 @@ public class App extends JFrame implements Runnable, KeyListener{
         
         switch (iTecla) {
             case KeyEvent.VK_LEFT:
-                iDireccion = 1;
+                iDirPrincipal = 1;
                 break;
             case KeyEvent.VK_RIGHT:
-                iDireccion = 2;
+                iDirPrincipal = 2;
+                break;
+            case KeyEvent.VK_A:
+                iDirBala = 1;
+                break;
+            case KeyEvent.VK_SPACE:
+                iDirBala = 0;
+                break;
+            case KeyEvent.VK_S:
+                iDirBala = 2;
+                break;
+            case KeyEvent.VK_P:
+                bPausa != bPausa;
                 break;
         }
+        
         
         
     }
@@ -410,7 +430,7 @@ public class App extends JFrame implements Runnable, KeyListener{
      */
     @Override
     public void keyReleased(KeyEvent e) {
-        iDireccion = 0;
+        iDirPrincipal = 0;
     }
     
     /**
